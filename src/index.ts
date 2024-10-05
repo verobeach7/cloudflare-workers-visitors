@@ -18,10 +18,11 @@ import home from './home.html';
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		const url = new URL(request.url); // request의 url object를 만들어 줌
-		console.log(url);
+		// console.log(url);
 
 		// pathname을 설정해 url 접근을 통제
 		if (url.pathname === '/') {
+			await env.DB.put('hello', 'how are you');
 			// Response로 home만 보내면 text로 인식함. headers를 함께 보내서 브라우저가 실행할 수 있도록 함.
 			return new Response(home, {
 				headers: {
