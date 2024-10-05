@@ -15,23 +15,61 @@
 // @ts-ignore
 import home from './home.html';
 
+function handleHome() {
+	// Response로 home만 보내면 text로 인식함. headers를 함께 보내서 브라우저가 실행할 수 있도록 함.
+	return new Response(home, {
+		headers: {
+			'Content-Type': 'text/html;chartset=utf-8',
+		},
+	});
+}
+
+function handleNotFound() {
+	return new Response(null, {
+		status: 404,
+	});
+}
+
+function handleBadRequest() {
+	return new Response(null, {
+		status: 400,
+	});
+}
+
+async function handleVisit(searchParams: URLSearchParams, env: Env) {
+	console.log(searchParams.toString());
+	// search parameters에서 page parameter를 받아옴
+	const page = searchParams.get('page');
+	console.log(page);
+	if (!page) {
+		return handleBadRequest();
+	}
+	const kvPage = await env.DB.get(page);
+	let value = 1;
+	if (!kvPage) {
+		await env.DB.put(page, value + '');
+	} else {
+		value = parseInt(kvPage) + 1;
+		await env.DB.put(page, value + '');
+	}
+	return new Response(JSON.stringify({ visits: value }), {
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	});
+}
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		const url = new URL(request.url); // request의 url object를 만들어 줌
-		// console.log(url);
-
-		// pathname을 설정해 url 접근을 통제
-		if (url.pathname === '/') {
-			await env.DB.put('hello', 'how are you');
-			// Response로 home만 보내면 text로 인식함. headers를 함께 보내서 브라우저가 실행할 수 있도록 함.
-			return new Response(home, {
-				headers: {
-					'Content-Type': 'text/html;chartset=utf-8',
-				},
-			});
+		const { pathname, searchParams } = new URL(request.url); // request의 url object를 만들어 줌
+		switch (pathname) {
+			case '/':
+				return handleHome();
+			case '/visit':
+				// env를 보내 KV Database에 접근할 수 있는 권한을 줌
+				return handleVisit(searchParams, env);
+			default:
+				return handleNotFound();
 		}
-		return new Response(null, {
-			status: 404,
-		});
 	},
 } satisfies ExportedHandler<Env>;
