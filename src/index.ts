@@ -11,8 +11,26 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+// TypeScript는 home.html이 무엇인지 모르기 때문에 에러를 발생시킴
+// @ts-ignore
+import home from './home.html';
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('It works');
+		const url = new URL(request.url); // request의 url object를 만들어 줌
+		console.log(url);
+
+		// pathname을 설정해 url 접근을 통제
+		if (url.pathname === '/') {
+			// Response로 home만 보내면 text로 인식함. headers를 함께 보내서 브라우저가 실행할 수 있도록 함.
+			return new Response(home, {
+				headers: {
+					'Content-Type': 'text/html;chartset=utf-8',
+				},
+			});
+		}
+		return new Response(null, {
+			status: 404,
+		});
 	},
 } satisfies ExportedHandler<Env>;
