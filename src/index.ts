@@ -14,6 +14,7 @@
 // TypeScript는 home.html이 무엇인지 모르기 때문에 에러를 발생시킴
 // @ts-ignore
 import home from './home.html';
+import { makeBadge } from './utils';
 
 function handleHome() {
 	// Response로 home만 보내면 text로 인식함. headers를 함께 보내서 브라우저가 실행할 수 있도록 함.
@@ -52,9 +53,9 @@ async function handleVisit(searchParams: URLSearchParams, env: Env) {
 		value = parseInt(kvPage) + 1;
 		await env.DB.put(page, value + '');
 	}
-	return new Response(JSON.stringify({ visits: value }), {
+	return new Response(makeBadge(value), {
 		headers: {
-			'Content-Type': 'application/json',
+			'Content-Type': 'image/svg+xml;chartset=utf-8',
 		},
 	});
 }
