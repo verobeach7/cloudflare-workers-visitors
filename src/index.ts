@@ -66,9 +66,6 @@ export default {
 		switch (pathname) {
 			case '/':
 				return handleHome();
-			case '/visit':
-				// env를 보내 KV Database에 접근할 수 있는 권한을 줌
-				return handleVisit(searchParams, env);
 			default:
 				return handleNotFound();
 		}
