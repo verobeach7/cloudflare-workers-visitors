@@ -2,5 +2,5 @@
 
 interface Env {
 	DB: KVNamespace;
-	COUNTER: DurableObjectNamespace<import("./src/index").CounterObject>;
+	CHAT: DurableObjectNamespace<import('./src/index').ChatRoom>;
 }

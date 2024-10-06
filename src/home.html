@@ -5,5 +5,21 @@
 	</head>
 	<body>
 		<h1>Chat</h1>
+		<button>Connect</button>
+		<script>
+			const button = document.querySelector('button');
+			/* Step 1: 백엔드에 웹소켓 연결 요청을 보냄 */
+			button.addEventListener('click', () => {
+				const socket = new WebSocket(`ws://${window.location.host}/connect`);
+				// socket이 open(연결)되면 연결됨을 알림
+				socket.addEventListener('open', () => {
+					console.log('Connected');
+				});
+				// socket을 통해 메시지가 전달되면 이를 콘솔에 표시함
+				socket.addEventListener('message', (event) => {
+					console.log(event.data);
+				});
+			});
+		</script>
 	</body>
 </html>
