@@ -30,14 +30,41 @@ function handleNotFound() {
 	});
 }
 
-export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		const { pathname, searchParams } = new URL(request.url); // request의 url object를 만들어 줌
+// Durable Object: Cloudflare가 네트워크 전체에 이 클래스를 저장함
+export class CounterObject {
+	counter: number;
+	constructor() {
+		this.counter = 0;
+	}
+	// Durable Object와 소통하기 위해서 Method가 필요함(이 Method는 모든 state 변화를 관리함)
+	// Durable Object 안에서 fetch method를 만드는 것이 규칙임
+	async fetch(request: Request) {
+		const { pathname } = new URL(request.url);
 		switch (pathname) {
 			case '/':
-				return handleHome();
+				return new Response(this.counter);
+			case '/+':
+				this.counter++;
+				return new Response(this.counter);
+			case '/-':
+				this.counter--;
+				return new Response(this.counter);
 			default:
 				return handleNotFound();
 		}
+	}
+}
+
+export default {
+	async fetch(request, env, ctx): Promise<Response> {
+		/* CounterObject를 이용해 새로운 객체(인스턴스)를 만들고 fetch method를 호출 */
+		// Unique ID 생성
+		const id = env.COUNTER.idFromName('counter');
+		// new CounterObject(): 이런식으로 사용자가 instance를 만드는 것이 아님. Cloudflare가 대신 이 작업을 해줌
+		// Worker가 id를 확인하고 이미 생성되어 있는 id이면 해당 instance를 가져오고, 없으면 해당 id로 새로운 인스턴스를 생성하고 초기화함
+		const durableObject = env.COUNTER.get(id);
+		// durableObject에 fetch request를 보냄
+		const response = await durableObject.fetch(request);
+		return response;
 	},
 } satisfies ExportedHandler<Env>;

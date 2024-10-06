@@ -2,4 +2,5 @@
 
 interface Env {
 	DB: KVNamespace;
+	COUNTER: DurableObjectNamespace<import("./src/index").CounterObject>;
 }

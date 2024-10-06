@@ -4,10 +4,20 @@ main = "src/index.ts"
 compatibility_date = "2024-09-25"
 compatibility_flags = ["nodejs_compat"]
 
+# Cloudflare의 KV DB와 연결
 [[kv_namespaces]]
 binding = "DB"
 id = "7441b8c77ccc4c24a1d984bbde4ce358"
 preview_id = "d86f4ee2996b4440bdcb3d18eaaef1ed"
+
+# Cloudflare의 Durable Object와 연결
+[[durable_objects.bindings]]
+name = "COUNTER"
+class_name = "CounterObject"
+
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_classes = ["CounterObject"]
 
 
 # Workers Logs
