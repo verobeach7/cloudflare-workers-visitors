@@ -18,7 +18,8 @@
 			const ul = document.querySelector('ul');
 			/* Step 1: 백엔드에 웹소켓 연결 요청을 보냄 */
 			button.addEventListener('click', () => {
-				const socket = new WebSocket(`ws://${window.location.host}/connect`);
+				const ws = window.location.protocol === 'https' ? 'wss' : 'ws';
+				const socket = new WebSocket(`${ws}://${window.location.host}/connect`);
 				console.log(socket);
 				// socket이 open(연결)되면 연결됨을 알림
 				socket.addEventListener('open', () => {
