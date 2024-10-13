@@ -13,14 +13,20 @@
 
 // TypeScript는 home.html이 무엇인지 모르기 때문에 에러를 발생시킴
 // @ts-ignore
+import { event } from 'firebase-functions/v1/analytics';
 import home from './home.html';
 
 // Durable Object: Cloudflare가 네트워크 전체에 이 클래스를 저장함
 export class ChatRoom {
+	// type 지정
 	state: DurableObjectState;
+	users: WebSocket[];
+	messages: string[];
 	// constructor의 state는 storage를 제공함. 이 객체가 삭제되고 다시 생성돼도 계속 지속됨
 	constructor(state: DurableObjectState, env: Env) {
 		this.state = state;
+		this.users = [];
+		this.messages = [];
 	}
 
 	// class의 객체지향을 이용하여 함수를 class 내부의 method로 가져옴
@@ -51,11 +57,19 @@ export class ChatRoom {
 	}
 
 	handleWebSocket(webSocket: WebSocket) {
+		console.log(webSocket);
 		// 전달 받은 webSocket을 수락함
 		webSocket.accept();
-		setTimeout(() => {
-			webSocket.send(JSON.stringify({ message: 'hello from backend!' }));
-		}, 3000);
+		// users에 webSocket을 이용해 접속한 사람 저장
+		this.users.push(webSocket);
+		webSocket.send(JSON.stringify({ message: 'hello from backend!' }));
+		this.messages.forEach((message) => webSocket.send(message));
+
+		// 백엔드가 메시지를 받으면 모든 유저에게 메시지를 뿌려줌
+		webSocket.addEventListener('message', (event) => {
+			this.messages.push(event.data.toString());
+			this.users.forEach((user) => user.send(event.data));
+		});
 	}
 
 	// Durable Object와 소통하기 위해서 Method가 필요함(이 Method는 모든 state 변화를 관리함)
