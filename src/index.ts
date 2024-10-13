@@ -12,8 +12,8 @@
  */
 
 // TypeScript는 home.html이 무엇인지 모르기 때문에 에러를 발생시킴
-// @ts-ignore
 import { event } from 'firebase-functions/v1/analytics';
+// @ts-ignore
 import home from './home.html';
 
 // Durable Object: Cloudflare가 네트워크 전체에 이 클래스를 저장함
