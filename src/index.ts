@@ -12,7 +12,6 @@
  */
 
 // TypeScript는 home.html이 무엇인지 모르기 때문에 에러를 발생시킴
-import { event } from 'firebase-functions/v1/analytics';
 // @ts-ignore
 import home from './home.html';
 
